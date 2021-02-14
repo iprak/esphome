@@ -1,0 +1,59 @@
+substitutions:
+  devicename: houzetek
+  proper_devicename: Houzeteh
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: esp01_1m
+  arduino_version: espressif8266@2.6.2
+
+wifi:
+  ssid: !secret ssid
+  password: !secret ssid_password
+  use_address: "$devicename.home"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "$proper_devicename Hotspot"
+    password: !secret ap_password
+
+captive_portal:
+logger:
+api:
+ota:
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO14
+      mode: INPUT_PULLUP
+    id: button
+    on_press:
+      - switch.toggle: relay
+
+  - platform: status
+    name: $devicename
+
+switch:
+  - platform: gpio
+    name: $devicename
+    pin: GPIO12
+    id: relay
+    icon: "mdi:floor-lamp"
+
+    on_turn_on:
+      - output.turn_on: led2
+    on_turn_off:
+      - output.turn_off: led2
+
+output:
+  - platform: gpio
+    pin: GPIO5
+    id: led2
+    inverted: yes
+
+status_led:
+  pin:
+    number: GPIO13
+    inverted: yes
