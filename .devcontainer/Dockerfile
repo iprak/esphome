@@ -4,8 +4,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /tmp/*
 
-RUN python -m pip install --upgrade esphome
+RUN pip install --upgrade esphome esptool platformio
 
 WORKDIR /workspace

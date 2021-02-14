@@ -1,11 +1,10 @@
 // See https://aka.ms/vscode-remote/devcontainer.json for format details.
 {
-	"name": "ESPHome Dev",
+	"name": "ESPHome",
 	"context": "..",
 	"dockerFile": "Dockerfile",
 	"postCreateCommand": "",
-	"runArgs": ["--privileged", "-e", "ESPHOME_DASHBOARD_USE_PING=1"],
-	"appPort": 6052,
+	"runArgs": ["--privileged", "--device=/dev/ttyUSB0"],
 	"extensions": [
 		"ms-python.python"
 	],
