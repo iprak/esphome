@@ -6,7 +6,7 @@ esphome:
   name: $devicename
   platform: ESP8266
   board: esp01_1m
-  arduino_version: espressif8266@2.6.2
+  #arduino_version: espressif8266@2.6.2
 
 wifi:
   ssid: !secret ssid

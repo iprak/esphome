@@ -1,0 +1,35 @@
+substitutions:
+  devicename: esp01
+  upper_devicename: ESP01
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: !secret ssid
+  password: !secret ssid_password
+  use_address: "$devicename.home"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: $upper_devicename Hotspot
+    password: !secret ap_password
+
+captive_portal:
+logger:
+api:
+ota:
+
+# sensor:
+#   # - platform: adc
+#   #   pin: VCC
+#   #   name: $upper_devicename VCC
+#   - platform: dht
+#     pin: GPIO2
+#     temperature:
+#       name: $upper_devicename Temperature
+#     humidity:
+#       name: $upper_devicename Humidity
+#     update_interval: 60s

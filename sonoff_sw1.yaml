@@ -1,0 +1,71 @@
+substitutions:
+  devicename: sonoff_sw1
+  proper_devicename: Sonoff SW1
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: esp01_1m
+
+  #arduino_version: espressif8266@1.5.0
+  #Error: Could not find 'eagle.flash.1m.ld' LD script in LDPATH '/root/.platformio/packages/framework-arduinoespressif8266@1.20300.1/tools/sdk/lib /root/.platformio/platforms/espressif8266@1.5.0/ldscripts /workspaces/esphome/sonoff_sw1/.pioenvs/sonoff_sw1'
+
+  arduino_version: espressif8266@1.8.0
+  #This worked as of 12/9/20
+
+  #arduino_version: espressif8266@2.6.2
+  #arduino_version: 2.4.2
+  #arduino_version: dev
+
+  #[env:itead-sonoff-basic]
+  #board = ${common.board_1m}
+  #build_flags = ${common.build_flags_1m0m} -DITEAD_SONOFF_BASIC
+  #platform = espressif8266@2.6.2
+  #arduino_core_2_3_0 = espressif8266@1.5.0
+
+wifi:
+  ssid: !secret ssid
+  password: !secret ssid_password
+  use_address: "$devicename.home"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "$proper_devicename Hotspot"
+    password: !secret ap_password
+
+captive_portal:
+logger:
+api:
+ota:
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    id: button
+    on_press:
+      - switch.toggle: relay
+
+  - platform: status
+    name: $devicename
+
+switch:
+  - platform: gpio
+    name: $devicename
+    pin: GPIO12
+    id: relay
+    icon: "mdi:floor-lamp"
+
+status_led:
+  pin:
+    number: GPIO13
+    inverted: yes
+
+# sensor:
+#   - platform: adc
+#     pin: VCC
+#     name: "$proper_devicename VCC"
+#   - platform: uptime
+#     name: "$proper_devicename Uptime"
