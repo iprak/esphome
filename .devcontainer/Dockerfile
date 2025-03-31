@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM mcr.microsoft.com/devcontainers/python:1-3.13
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
