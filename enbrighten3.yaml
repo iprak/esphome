@@ -1,0 +1,61 @@
+substitutions:
+  devicename: enbrighten3
+  upper_devicename: Enbrighten3
+
+esphome:
+  name: $devicename
+
+bk72xx:
+  board: generic-bk7231t-qfn32-tuya
+
+wifi:
+  ssid: !secret ssid
+  password: !secret ssid_password
+  use_address: "$devicename.local"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: $upper_devicename Hotspot
+    #password: !secret ap_password
+
+captive_portal:
+logger:
+api:
+ota:
+  - platform: esphome
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: P26
+      #mode: INPUT_PULLUP
+    id: button
+    on_press:
+      - switch.toggle: relay
+
+  - platform: status
+    name: $devicename
+
+switch:
+  - platform: gpio
+    name: $devicename
+    pin: P24
+    id: relay
+    icon: "mdi:floor-lamp"
+
+    on_turn_on:
+      - output.turn_on: switch_led
+    on_turn_off:
+      - output.turn_off: switch_led
+
+
+output:
+  - platform: gpio
+    pin: P7
+    id: switch_led
+    inverted: yes
+
+# status_led:
+#   pin:
+#     number: P7
+#     inverted: yes
