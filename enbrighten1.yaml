@@ -11,7 +11,7 @@ esp8266:
 wifi:
   ssid: !secret ssid
   password: !secret ssid_password
-  use_address: "$devicename.local"
+  use_address: "$devicename.home"
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -22,7 +22,7 @@ captive_portal:
 logger:
 api:
 ota:
-  - platform: esphome
+
 
 binary_sensor:
   - platform: gpio
