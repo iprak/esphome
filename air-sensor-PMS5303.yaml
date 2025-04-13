@@ -1,0 +1,80 @@
+substitutions:
+  devicename: !secret air_sensor_device_name
+  proper_devicename: Air Sensor
+
+esphome:
+  name: $devicename
+
+esp8266:
+  board: esp12e
+
+wifi:
+  ssid: !secret ssid
+  password: !secret ssid_password
+  use_address: !secret air_sensor_address
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: $proper_devicename Hotspot
+    password: !secret ap_password
+
+captive_portal:
+logger:
+api:
+ota:
+  - platform: esphome
+web_server:
+  auth:
+    username: admin
+    password: !secret web_server_password
+
+binary_sensor:
+  - platform: status
+    name: "$proper_devicename"
+
+sensor:
+  - platform: pmsx003
+    type: PMSX003
+    pm_1_0:
+      name: "PM <1.0µm"
+    pm_2_5:
+      name: "PM <2.5µm"
+    pm_10_0:
+      name: "PM <10.0µm"
+
+
+# Show measurement in progress using the internal LED
+output:
+  - platform: gpio
+    pin: GPIO2
+    inverted: yes
+    id: measurement_light
+
+switch:
+  - platform: gpio
+    pin:
+      number: GPIO14
+    id: pms_set
+    name: "Start measuring"
+    on_turn_on:
+      - output.turn_on: measurement_light
+    on_turn_off:
+      - output.turn_off: measurement_light
+
+# https://www.pieterbrinkman.com/2021/02/03/build-a-cheap-air-quality-meter-using-esphome-home-assistant-and-a-particulate-matter-sensor/
+# The laser light has life span of 30.000 hours, which is about 3.5 years. We will be expanding this life span by
+# enabling the device for 20 seconds every two minutes. This will bring the lifespan of the sensor to about 18 years :).
+interval:
+  - interval: 120s
+    then:
+      - switch.turn_on: pms_set
+      - delay: 20s
+      - switch.turn_off: pms_set
+
+uart:
+  tx_pin: GPIO4
+  rx_pin: GPIO5
+  baud_rate: 9600
+
+# logger:
+#   level: DEBUG
