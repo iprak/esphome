@@ -1,0 +1,129 @@
+#//0 is wired HIGH when running, 2 is wired to HIGH, 15 is wired to LOW
+#//Available: 4, 5, 12, 13, 14, 16 (pull down)
+#// 1 (TX), 3 (RX) can be used if DEBUG_SERIAL_SUPPORT = 0
+
+#define RELAY1_PIN                  5
+#define LED1_PIN                    2 //built-in
+#define LED1_PIN_INVERSE            1
+
+#RELAY1 gets used
+#define DOOR_SUPPORT                1
+#define DOOR_OPEN_SENSOR_PIN        12
+#define DOOR_OPEN_SENSOR_TYPE       DOOR_SENSOR_NORMALLY_OPEN
+#define DOOR_CLOSED_SENSOR_PIN      13
+#define DOOR_CLOSED_SENSOR_TYPE     DOOR_SENSOR_NORMALLY_OPEN
+
+
+substitutions:
+  devicename: garageopener
+  upper_devicename: GarageOpener
+
+esphome:
+  name: $devicename
+
+#4MB ESP-02S
+esp8266:
+  board: esp_wroom_02
+
+wifi:
+  ssid: !secret ssid
+  password: !secret ssid_password
+  use_address: !secret garageopener_address
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: $upper_devicename Hotspot
+    password: !secret ap_password
+
+captive_portal:
+logger:
+api:
+ota:
+  - platform: esphome
+web_server:
+  auth:
+    username: admin
+    password: !secret web_server_password
+
+binary_sensor:
+  - platform: gpio
+    name: ${upper_devicename} Open Sensor
+    pin:
+      number: GPIO12
+      mode: INPUT_PULLUP
+    filters:
+      - invert:
+      - delayed_on: 100ms
+      - delayed_off: 100ms
+    id: open_sensor
+    #device_class: GARAGE_DOOR
+    #internal: true
+  - platform: gpio
+    name: ${upper_devicename} Closed Sensor
+    pin:
+      number: GPIO13
+      mode: INPUT_PULLUP
+    filters:
+      - invert:
+      - delayed_on: 100ms
+      - delayed_off: 100ms
+    id: closed_sensor
+    #device_class: GARAGE_DOOR
+    #internal: true
+
+
+
+switch:
+  - platform: gpio
+    name: ${devicename} Relay
+    pin:
+      number: GPIO5
+      inverted: false
+    id: relay1
+    restore_mode: ALWAYS_OFF
+  - platform: restart
+    name: ${devicename} Restart
+
+cover:
+  - platform: template
+    device_class: garage
+    name: ${upper_devicename}
+    lambda: |-
+      if (id(open_sensor).state) {
+        return COVER_OPEN;
+      }
+      else if (id(closed_sensor).state) {
+        return COVER_CLOSED;
+      } else {
+        return {};
+      }
+    open_action:
+      - switch.turn_on: relay1
+      - delay: 0.5s
+      - switch.turn_off: relay1
+    close_action:
+      - switch.turn_on: relay1
+      - delay: 0.5s
+      - switch.turn_off: relay1
+    stop_action:
+      - switch.turn_on: relay1
+      - delay: 0.5s
+      - switch.turn_off: relay1
+
+
+sensor:
+  - platform: dht
+    pin: GPIO14
+    temperature:
+      name: "Garage Temperature"
+    humidity:
+      name: "Garage Humidity"
+    update_interval: 60s
+
+    #EntityCategory.DIAGNOST
+
+
+# status_led:
+#   pin:
+#     number: GPIO2
+#     inverted: yes
