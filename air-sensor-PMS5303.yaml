@@ -12,6 +12,7 @@ wifi:
   ssid: !secret ssid
   password: !secret ssid_password
   use_address: !secret air_sensor_address
+  fast_connect: true  #Connect without scanning
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
